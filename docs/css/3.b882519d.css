@@ -1,0 +1,1 @@
+.logo-rotation:before{transform:rotate(30deg)}.logo-rotation:after,.logo-rotation:before{height:80px;width:80px;background:#c00;content:"";position:absolute}.logo-rotation:after{transform:rotate(-30deg)}.logo-rotation:hover{transform:rotate(-20deg)}
