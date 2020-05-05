@@ -72,8 +72,8 @@ export default {
           link: '/employee'
         },
         {
-          title: 'Manažér',
-          caption: 'Kontrola ohodnotených poistných udalostí',
+          title: 'Prihlásiť sa',
+          caption: 'Prihlásenie hodnotiteľa dos systému.',
           icon: 'how_to_reg',
           link: '/login'
         }

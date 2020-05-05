@@ -17,7 +17,7 @@
             </q-input>
         </div>
         <div class="col-8">
-            <q-input filled bottom-slots label="Janko Hrasko" :dense="dense">
+            <q-input filled bottom-slots label="Meno a priezvisko" :dense="dense">
                 <template v-slot:prepend>
                     <q-icon name="perm_identity" />
                 </template>
@@ -52,21 +52,35 @@
         <!--////////////////////////////////////////////////-->
         <drag-and-drop-img v-bind:url="url"></drag-and-drop-img>
         <!--////////////////////////////////////////////////-->
-        <q-btn
-        class="col-2 self-end save-button"
-        rounded
-        color="cyan-8"
-        :size="xl"
-        >
-        <q-icon name="save" class="text-white" size="sm"/>
-        Uložiť
-        </q-btn>
+        <div class="col-2 row">
+            <q-btn
+            class="col-12 self-end save-button"
+            rounded
+            color="accent"
+            :size="xl"
+            >
+            <q-icon name="save" class="text-white" size="sm"/>
+            <q-space></q-space>
+            Uložiť
+            <q-space></q-space>
+            </q-btn>
+            <q-btn
+            class="col-12 self-end save-button"
+            rounded
+            color="cyan-8"
+            :size="xl"
+            >
+            <q-icon name="done_outline" class="text-white" size="sm"/>
+            <q-space></q-space>
+            Potvrdiť
+            </q-btn>
+        </div>
     </div>
     <!--------------------------------------------------------------------------------------------------->
      <div class="col-4">
          <h5 class="col-12">Správa o poistnej udalosti</h5>
          <div class="col-12">
-            <q-input filled bottom-slots label="Janko Hrasko" :dense="dense">
+            <q-input filled bottom-slots label="Meno a priezvisko" :dense="dense">
                 <template v-slot:prepend>
                     <q-icon name="note" />
                 </template>
@@ -87,10 +101,12 @@
             <q-btn
             class="col-4 self-end save-button"
             rounded
-            color="cyan-8"
+            color="accent"
             :size="xl"
             ><q-icon name="save" class="text-white" size="sm"/>
+            <q-space></q-space>
                 Uložiť
+            <q-space></q-space>
             </q-btn>
         </div>
      </div>
@@ -108,7 +124,7 @@ export default {
     return {
       files: [],
       url: [],
-      textarea: 'sadasdadddddddddddddddddddddddddddddddddddddddddddddd',
+      textarea: '',
       date: '2019-02-01 12:44',
       place: 'Bratislava'
     }
