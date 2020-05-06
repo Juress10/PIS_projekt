@@ -6,8 +6,8 @@
             </div>
             <q-dialog v-model="forgotPassword" transition-show="flip-down" transition-hide="flip-up">
                 <q-card class="bg-cyan-8 text-white remove-top-padding">
-                    <q-bar class="">
-                        <p style="margin:0">Zadajte novy email a heslo</p>
+                    <q-bar class="" style="height:60px;">
+                        <p style="margin:0">Zadajte email kam vám bude odoslané heslo.</p>
                         <q-space />
                         <q-btn dense flat icon="close" v-close-popup>
                             <q-tooltip content-class="bg-white text-primary">Close</q-tooltip>
@@ -16,8 +16,7 @@
 
                     <q-card-section class="q-pt-none" style="padding:20px;">
                      <q-input color="white" class="add-bottom-padding" label="email" :dense="dense" />
-                     <q-input color="white" class="add-bottom-padding" label="heslo" :dense="dense" />
-                     <q-btn unelevated outline rounded color="white" size="md" class="full-width add-bottom-padding add-top-margin" label="Zmeniť heslo" />
+                     <q-btn unelevated outline rounded color="white" size="md" class="full-width add-bottom-padding add-top-margin" label="Odoslať nové heslo" />
                     </q-card-section>
                 </q-card>
             </q-dialog>
