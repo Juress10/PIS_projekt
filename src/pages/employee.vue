@@ -37,7 +37,7 @@
         <q-tr v-show="props.expand" :props="props" class="bg-grey-4">
           <q-td colspan="100%">
             <div class="row justify between">
-              <div class="text-left col-10 zarovnanie">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent vel rhoncus ante, eget auctor mi. Curabitur scelerisque mattis dui nec malesuada. Cras ligula neque, ornare sed enim vel, ullamcorper placerat sem. Etiam sagittis nibh ut nisl consectetur dictum. Sed hendrerit, est vel vulputate aliquam, ipsum dui ultrices est, a faucibus magna leo eget leo. Suspendisse est urna, ullamcorper at neque id, rhoncus aliquam purus. Vestibulum quis neque in magna euismod dictum. Mauris nec purus vitae elit iaculis malesuada. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Mauris ac tristique velit. Aliquam ultricies aliquam tempor. Proin convallis sed lorem ac consequat. Quisque nec eros ex. Sed finibus velit vitae libero pharetra lobortis.</div>
+              <div class="text-left col-10 zarovnanie">{{ props.row.opis_skody }}</div>
               <q-btn unelevated rounded :to="`udalost/${ props.row.id }`" class="bg-cyan-8 col-2 text-white" size="sm">Zobraziť</q-btn>
             </div>
           </q-td>
@@ -50,6 +50,13 @@
 
 <script>
 export default {
+  created: function () {
+    this.$axios.get(this.$store.state.store.URL + '/api/udalost/all/' + this.$store.state.store.user.id)
+      .then(res => {
+        this.data = res.data
+      })
+      .catch(res => { console.log('error', res) })
+  },
   data () {
     return {
       columns: [
@@ -62,69 +69,12 @@ export default {
           format: val => `${val}`,
           sortable: true
         },
-        { name: 'opis', label: 'dátum vzniknutej škody', field: 'opis', sortable: true, sort: (a, b) => new Date(a) - new Date(b) },
-        { name: 'miesto', label: 'miesto vzniknutej škody', field: 'miesto', sortable: true },
-        { name: 'poistenec', label: 'meno poistenca', field: 'poistenec', sortable: true },
+        { name: 'datum_skody', label: 'dátum vzniknutej škody', field: 'datum_skody', sortable: true, sort: (a, b) => new Date(a) - new Date(b) },
+        { name: 'datum_pridelenia', label: 'dátum pridelenia', field: 'datum_pridelenia', sortable: true },
+        { name: 'poistenec_id', label: 'id poistenca', field: 'poistenec_id', sortable: true },
         { name: 'stav', label: 'stav', field: 'stav', sortable: true }
       ],
-      data: [
-        {
-          id: 7,
-          opis: '12.3.2018',
-          miesto: 'Bratislava',
-          poistenec: 'Maddox Walter',
-          stav: 'ohodnotená'
-        },
-        {
-          id: 6,
-          opis: '12.3.2019',
-          miesto: 'Bratislava',
-          poistenec: 'Pickett Garza',
-          stav: 'rozpacovaná'
-        },
-        {
-          id: 10,
-          opis: '12.3.2020',
-          miesto: 'Košice',
-          poistenec: 'Leon Ellis',
-          stav: 'ohodnotená'
-        },
-        {
-          id: 3,
-          opis: '12.9.2018',
-          miesto: 'Košice',
-          poistenec: 'Paige Rhodes',
-          stav: 'ohodnotená'
-        },
-        {
-          id: 9,
-          opis: '1.3.2020',
-          miesto: 'Bratislava',
-          poistenec: 'Marsh Harmon',
-          stav: 'rozpacovaná'
-        },
-        {
-          id: 12,
-          opis: '12.8.2017',
-          miesto: 'Banská Bystrica',
-          poistenec: 'Katheryn Briggs',
-          stav: 'ohodnotená'
-        },
-        {
-          id: 8,
-          opis: '1.1.2020',
-          miesto: 'Bratislava',
-          poistenec: 'Ray Larsen',
-          stav: 'podozrivá'
-        },
-        {
-          id: 22,
-          opis: '12.12.2019',
-          miesto: 'Košice',
-          poistenec: 'Ross Carpenter',
-          stav: 'ohodnotená'
-        }
-      ]
+      data: []
     }
   }
 }

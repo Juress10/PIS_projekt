@@ -1,17 +1,23 @@
 <template>
-  <q-page class="flex flex-center bg-cyan-8">
+  <q-page class="flex flex-center bg-cyan-8"> <!-- odstran nastavenie usera-->
     <img
       class="logo-rotation"
       alt="Vue logo"
       src="~assets/car_logo.png"
       style="width: 500px;"
+      v-on:click="setUser()"
     >
   </q-page>
 </template>
 
 <script>
 export default {
-  name: 'PageIndex'
+  name: 'PageIndex',
+  methods: {
+    setUser () {
+      this.$store.commit('store/setUser', { id: '1', meno: 'Lenka', pozicia: 'h' })
+    }
+  }
 }
 </script>
 
@@ -28,7 +34,6 @@ export default {
     -o-transform:rotate(30deg);
     transform:rotate(30deg);
 }
-
 .logo-rotation:after {
     height:80px;
     width:80px;
@@ -40,7 +45,6 @@ export default {
     -o-transform:rotate(-30deg);
     transform:rotate(-30deg);
 }
-
 .logo-rotation:hover {
     -moz-transform:rotate(-20deg);
     -webkit-transform:rotate(-20deg);

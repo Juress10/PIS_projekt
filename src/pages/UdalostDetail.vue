@@ -1,41 +1,34 @@
 <template>
   <div class="row hlavny-box">
-    <!--<ul>
-        <li v-for="file in files" v-bind:key="file.name">
-        {{ file.name }} ({{ file.size | kb }} kb) <button @click="removeFile(file)" title="Remove">X</button>
-        </li>
-    </ul>
-    <button :disabled="uploadDisabled" @click="upload">Upload</button>
-    -->
     <div class="col-8 row">
         <h5 class="col-12">Poistná udalosť</h5>
-        <div class="col-3 boxicek">
-            <q-input filled bottom-slots label="Id" :dense="dense">
+        <div class="col-5 boxicek">
+            <q-input filled bottom-slots label="Id udalosti" v-model="poistna_udalost.id" >
                 <template v-slot:prepend>
                     <q-icon name="vpn_key" />
                 </template>
             </q-input>
         </div>
-        <div class="col-8">
-            <q-input filled bottom-slots label="Meno a priezvisko" :dense="dense">
+        <div class="col-5">
+            <q-input filled bottom-slots label="Id poistenca" v-model="poistna_udalost.poistenec_id">
                 <template v-slot:prepend>
                     <q-icon name="perm_identity" />
                 </template>
             </q-input>
         </div>
-        <q-input filled v-model="textarea" class="col-12 boxicek vyrovnanie-dlzky" type="textarea"
-        label="Opis vzniknutej škody"/>
-        <q-input filled bottom-slots v-model="place" class="col-6 boxicek" label="Miesto vzniknutej škody" :dense="dense">
+        <q-input filled class="col-12 boxicek vyrovnanie-dlzky" type="textarea"
+        label="Opis vzniknutej škody" v-model="poistna_udalost.opis_skody" />
+        <q-input filled bottom-slots v-model="place" class="col-6 boxicek" label="Miesto vzniknutej škody" >
             <template v-slot:prepend>
                 <q-icon name="place" />
             </template>
         </q-input>
         <div class="col-5" style="">
-            <q-input filled v-model="date">
+            <q-input filled v-model="poistna_udalost.datum_skody">
             <template v-slot:prepend>
                 <q-icon name="event" class="cursor-pointer">
                 <q-popup-proxy transition-show="scale" transition-hide="scale">
-                    <q-date v-model="date" mask="YYYY-MM-DD HH:mm" />
+                    <q-date v-model="poistna_udalost.datum_skody" mask="YYYY-MM-DD HH:mm" />
                 </q-popup-proxy>
                 </q-icon>
             </template>
@@ -43,7 +36,7 @@
             <template v-slot:append>
                 <q-icon name="access_time" class="cursor-pointer">
                 <q-popup-proxy transition-show="scale" transition-hide="scale">
-                    <q-time v-model="date" mask="YYYY-MM-DD HH:mm" format24h />
+                    <q-time v-model="poistna_udalost.datum_skody" mask="YYYY-MM-DD HH:mm" format24h />
                 </q-popup-proxy>
                 </q-icon>
             </template>
@@ -58,6 +51,7 @@
             rounded
             color="accent"
             :size="xl"
+            v-on:click="updatePoistnaUdalost()"
             >
             <q-icon name="save" class="text-white" size="sm"/>
             <q-space></q-space>
@@ -80,21 +74,21 @@
      <div class="col-4">
          <h5 class="col-12">Správa o poistnej udalosti</h5>
          <div class="col-12">
-            <q-input filled bottom-slots label="Meno a priezvisko" :dense="dense">
+            <q-input filled bottom-slots v-model="poistna_sprava.meno_priezvisko" label="Meno a priezvisko">
                 <template v-slot:prepend>
                     <q-icon name="note" />
                 </template>
             </q-input>
         </div>
         <div class="col-12">
-            <q-input filled bottom-slots label="Odhadnuta cena" :dense="dense">
+            <q-input filled bottom-slots label="Odhadnuta cena" v-model="poistna_sprava.odhadnuta_suma">
                 <template v-slot:prepend>
                     <q-icon name="euro_symbol" />
                 </template>
             </q-input>
         </div>
-        <q-input filled v-model="textarea" class="col-12 boxicek" type="textarea"
-        label="Správa pre poistenca"/>
+        <q-input filled v-model="poistna_sprava.text_spravy" class="col-12 boxicek" type="textarea"
+        label="Správa pre poistenca" />
         <div class="col-12 row justify-between">
             <div class="col-7" style="width: 150px; height:30px;">
             </div>
@@ -103,6 +97,7 @@
             rounded
             color="accent"
             :size="xl"
+            v-on:click="updatePoistnaSprava()"
             ><q-icon name="save" class="text-white" size="sm"/>
             <q-space></q-space>
                 Uložiť
@@ -126,8 +121,64 @@ export default {
       url: [],
       textarea: '',
       date: '2019-02-01 12:44',
-      place: 'Bratislava'
+      place: 'Bratislava',
+      poistna_udalost: {},
+      poistna_sprava: {}
     }
+  },
+  methods: {
+    updatePoistnaUdalost () {
+      console.log(this.poistna_udalost)
+      this.$axios.put(
+        this.$store.state.store.URL + '/api/udalost/update/' + this.poistna_udalost.id,
+        this.poistna_udalost
+      )
+        .then(res => {
+          console.log(res)
+        })
+        .catch(res => { console.log('error', res) })
+    },
+    updatePoistnaSprava () {
+      console.log(this.poistna_sprava)
+      if (typeof this.poistna_sprava.id !== 'undefined') {
+        this.$axios.put(
+          this.$store.state.store.URL + '/api/sprava/update/' + this.poistna_sprava.id,
+          this.poistna_sprava
+        )
+          .then(res => {
+            console.log(res)
+          })
+          .catch(res => { console.log('error', res) })
+      } else {
+        this.poistna_sprava.poistna_udalost_id = this.poistna_udalost.id
+        this.$axios.post(
+          this.$store.state.store.URL + '/api/sprava/create',
+          this.poistna_sprava
+        )
+          .then(res => {
+            console.log(res)
+          })
+          .catch(res => { console.log('error', res) })
+      }
+    }
+  },
+  created: function () {
+    this.$axios.get(this.$store.state.store.URL + '/api/udalost/read/' + this.$route.params.id)
+      .then(res => {
+        console.log(res.data)
+        this.poistna_udalost = res.data
+      })
+      .catch(res => { console.log('error', res) })
+      .then(() => {
+        if (this.poistna_udalost != null) {
+          this.$axios.get(this.$store.state.store.URL + '/api/sprava/read/' + this.poistna_udalost.id)
+            .then(res2 => {
+              this.poistna_sprava = res2.data
+              console.log(this.poistna_sprava)
+            })
+            .catch(res => { console.log('error', res) })
+        }
+      })
   }
 }
 </script>

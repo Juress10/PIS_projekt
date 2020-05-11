@@ -15,7 +15,7 @@
                     </q-bar>
 
                     <q-card-section class="q-pt-none" style="padding:20px;">
-                     <q-input color="white" class="add-bottom-padding" label="email" :dense="dense" />
+                     <q-input color="white" class="add-bottom-padding" label="email"/>
                      <q-btn unelevated outline rounded color="white" size="md" class="full-width add-bottom-padding add-top-margin" label="Odoslať nové heslo" />
                     </q-card-section>
                 </q-card>
@@ -24,12 +24,12 @@
                 <q-card square bordered class="bg-blue-grey-1 q-pa-lg shadow-1">
                     <q-card-section>
                         <q-form class="q-gutter-md">
-                        <q-input square filled clearable type="name" label="email"  />
-                        <q-input square filled clearable type="password" label="heslo" />
+                        <q-input square filled clearable type="name" v-model="email" label="email"  />
+                        <q-input square filled clearable type="password" v-model="heslo" label="heslo" />
                         </q-form>
                     </q-card-section>
                     <q-card-actions class="q-px-md">
-                        <q-btn unelevated color="cyan-8" size="lg" class="full-width" label="Prihlásiť sa" />
+                        <q-btn unelevated color="cyan-8" size="lg" class="full-width" v-on:click="login()" label="Prihlásiť sa" />
                     </q-card-actions>
                     <q-card-section class="text-center q-pa-none">
                         <p class="text-grey-6">Zabudli ste <span @click="forgotPassword = true" style="color:black;">heslo ?</span></p>
@@ -44,7 +44,26 @@
 export default {
   data () {
     return {
-      forgotPassword: false
+      forgotPassword: false,
+      email: '',
+      heslo: ''
+    }
+  },
+  methods: {
+    login () {
+      this.$axios.post(
+        this.$store.state.store.URL + '/api/login',
+        {
+          email: this.email,
+          heslo: this.heslo
+        }
+      )
+        .then(res => {
+          console.log(res.data)
+          this.$store.commit('store/setUser', res.data)
+          this.$router.push({ name: 'employee' })
+        })
+        .catch(res => { console.log('error', res) })
     }
   }
 }
