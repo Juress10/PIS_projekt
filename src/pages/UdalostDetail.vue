@@ -18,7 +18,7 @@
         </div>
         <q-input filled class="col-12 boxicek vyrovnanie-dlzky" type="textarea"
         label="Opis vzniknutej škody" v-model="poistna_udalost.opis_skody" />
-        <q-input filled bottom-slots v-model="place" class="col-6 boxicek" label="Miesto vzniknutej škody" >
+        <q-input filled bottom-slots v-model="poistna_udalost.miesto_skody" class="col-6 boxicek" label="Miesto vzniknutej škody" >
             <template v-slot:prepend>
                 <q-icon name="place" />
             </template>
@@ -63,6 +63,7 @@
             rounded
             color="cyan-8"
             :size="xl"
+            v-on:click="potvrditUdalost()"
             >
             <q-icon name="done_outline" class="text-white" size="sm"/>
             <q-space></q-space>
@@ -119,14 +120,60 @@ export default {
     return {
       files: [],
       url: [],
-      textarea: '',
-      date: '2019-02-01 12:44',
-      place: 'Bratislava',
       poistna_udalost: {},
       poistna_sprava: {}
     }
   },
   methods: {
+    async sendEmail () {
+      var soap = require('soap')
+      var parseString = require('xml2js').parseString
+      var validate = false
+
+      soap.createClientAsync('http://pis.predmety.fiit.stuba.sk/pis/ws/NotificationServices/Email?WSDL').then((client) => {
+        client.notify({
+          team_id: '074',
+          password: '4GKU4S',
+          email: this.poistna_udalost.poistenec_id + '@gmail.com',
+          subject: 'oboznamenie o poistke',
+          message: this.poistna_sprava.text_spravy
+        }, function (err, result) {
+          if (!result.body) {
+            if (err)console.log(err)
+            validate = result
+          } else {
+            // eslint-disable-next-line handle-callback-err
+            parseString(result.body, function (err, res) {
+              validate = res
+            })
+          }
+        })
+      })
+      await this.sleep(2000)
+      return validate
+    },
+    sleep (ms) {
+      return new Promise(resolve => setTimeout(resolve, ms))
+    },
+    async potvrditUdalost () {
+      if (typeof this.poistna_sprava.id !== 'undefined' && typeof this.poistna_sprava.meno_priezvisko !== 'undefined' &&
+      typeof this.poistna_sprava.odhadnuta_suma !== 'undefined' && typeof this.poistna_sprava.text_spravy !== 'undefined' &&
+      typeof this.poistna_udalost.datum_skody !== 'undefined' && typeof this.poistna_udalost.opis_skody !== 'undefined' &&
+      this.poistna_udalost.miesto_skody !== 'undefined') {
+        this.$axios.post(this.$store.state.store.URL + '/api/potvrdit',
+          {
+            id: this.poistna_udalost.id,
+            suma: this.poistna_sprava.odhadnuta_suma
+          }).then(function (response) {
+          console.log(response)
+        })
+          .catch(function (error) {
+            console.log(error)
+          })
+        var validate = await this.sendEmail()
+        console.log('email bol poistencovy poslany: ' + validate.success)
+      }
+    },
     updatePoistnaUdalost () {
       console.log(this.poistna_udalost)
       this.$axios.put(

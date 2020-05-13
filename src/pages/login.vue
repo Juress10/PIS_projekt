@@ -1,3 +1,4 @@
+
 <template>
      <q-page class="bg-white row justify-center items-center">
         <div class="column">
@@ -15,8 +16,9 @@
                     </q-bar>
 
                     <q-card-section class="q-pt-none" style="padding:20px;">
-                     <q-input color="white" class="add-bottom-padding" label="email"/>
-                     <q-btn unelevated outline rounded color="white" size="md" class="full-width add-bottom-padding add-top-margin" label="Odoslať nové heslo" />
+                     <q-input color="white" class="add-bottom-padding" v-model="email" label="email"/>
+                     <q-btn unelevated outline rounded color="white" size="md" v-on:click="changePassword()"
+                     class="full-width add-bottom-padding add-top-margin" label="Odoslať nové heslo" />
                     </q-card-section>
                 </q-card>
             </q-dialog>
@@ -50,20 +52,53 @@ export default {
     }
   },
   methods: {
-    login () {
-      this.$axios.post(
-        this.$store.state.store.URL + '/api/login',
-        {
-          email: this.email,
-          heslo: this.heslo
-        }
-      )
-        .then(res => {
-          console.log(res.data)
-          this.$store.commit('store/setUser', res.data)
-          this.$router.push({ name: 'employee' })
+    async validateEmail () {
+      var soap = require('soap')
+      var parseString = require('xml2js').parseString
+      var validate = false
+      var email = this.email
+      soap.createClientAsync('http://pis.predmety.fiit.stuba.sk/pis/ws/Validator?WSDL').then((client) => {
+        client.validateEmail({ email: email }, function (err, result) {
+          if (!result.body) {
+            if (err)console.log(err)
+            validate = result.success
+          } else {
+            // eslint-disable-next-line handle-callback-err
+            parseString(result.body, function (err, res) {
+              validate = res.success
+            })
+          }
         })
-        .catch(res => { console.log('error', res) })
+      })
+      await this.sleep(2000)
+      return validate
+    },
+    sleep (ms) {
+      return new Promise(resolve => setTimeout(resolve, ms))
+    },
+    async login () {
+      var validate = await this.validateEmail()
+
+      if (validate) {
+        this.$axios.post(
+          this.$store.state.store.URL + '/api/login',
+          {
+            email: this.email,
+            heslo: this.heslo
+          }
+        )
+          .then(res => {
+            console.log(res.data)
+            this.$store.commit('store/setUser', res.data)
+            this.$router.push({ name: 'employee' })
+          })
+          .catch(res => { console.log('error', res) })
+      } else {
+        console.log('not valid: ' + validate)
+      }
+    },
+    changePassword () {
+      console.log(this.email)
     }
   }
 }
