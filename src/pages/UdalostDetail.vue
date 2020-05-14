@@ -51,13 +51,15 @@
             rounded
             color="accent"
             :size="xl"
-            v-on:click="updatePoistnaUdalost()"
+            @click="zobrazUlozenie=true"
+            v-on:click="updatePoistnaUdalost(); updatePoistnaSprava();"
             >
             <q-icon name="save" class="text-white" size="sm"/>
             <q-space></q-space>
             Uložiť
             <q-space></q-space>
             </q-btn>
+
             <q-btn
             class="col-12 self-end save-button"
             rounded
@@ -70,6 +72,27 @@
             Potvrdiť
             </q-btn>
         </div>
+
+        <q-dialog v-model="zobrazUlozenie">
+          <zobraz-okno-ulozenie />
+        </q-dialog>
+
+        <q-dialog v-model="chybajuceUdaje">
+          <chybajuce-udaje />
+        </q-dialog>
+
+        <q-dialog v-model="neadekvatnaSuma">
+          <neadekvatna-suma />
+        </q-dialog>
+
+        <q-dialog v-model="notifikovanieEmailom">
+          <notifikovanie-emailom />
+        </q-dialog>
+
+        <q-dialog v-model="notifikovanieSMS">
+          <notifikovanie-sms />
+        </q-dialog>
+
     </div>
     <!--------------------------------------------------------------------------------------------------->
      <div class="col-4">
@@ -114,14 +137,26 @@ import DragAndDropImg from 'components/DragAndDropImg'
 
 export default {
   components: {
-    'drag-and-drop-img': DragAndDropImg
+    'drag-and-drop-img': DragAndDropImg,
+
+    'zobraz-okno-ulozenie': require('components/Modals/zobrazUlozenie.vue').default,
+    'chybajuce-udaje': require('components/Modals/chybajuceUdaje.vue').default,
+    'neadekvatna-suma': require('components/Modals/neadekvatnaSuma.vue').default,
+    'notifikovanie-emailom': require('components/Modals/notifikovanieEmailom.vue').default,
+    'notifikovanie-sms': require('components/Modals/notifikovanieSMS.vue').default
   },
   data () {
     return {
       files: [],
       url: [],
       poistna_udalost: {},
-      poistna_sprava: {}
+      poistna_sprava: {},
+
+      zobrazUlozenie: false,
+      chybajuceUdaje: false,
+      neadekvatnaSuma: false,
+      notifikovanieEmailom: false,
+      notifikovanieSMS: false
     }
   },
   methods: {
