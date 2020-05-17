@@ -1,7 +1,7 @@
 <template>
     <q-card>
         <q-card-section class="row">
-            <div class="text-h6"><b>...</b></div>
+            <div class="text-h6"><b>Ohodnotenie úspešné</b></div>
             <q-space />
         </q-card-section>
 

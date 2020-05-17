@@ -52,6 +52,45 @@ export default {
     }
   },
   methods: {
+    async updateHeslo (newPassword) {
+      this.$axios.post(this.$store.state.store.URL + '/api/generuj',
+        {
+          email: this.email,
+          heslo: newPassword
+        }).then(function (response) {
+        console.log(response)
+      })
+        .catch(function (error) {
+          console.log(error)
+        })
+    },
+    async sendEmailPassw (email2, noveHeslo) {
+      var soap = require('soap')
+      var parseString = require('xml2js').parseString
+      var validate = false
+
+      soap.createClientAsync('http://pis.predmety.fiit.stuba.sk/pis/ws/NotificationServices/Email?WSDL').then((client) => {
+        client.notify({
+          team_id: '074',
+          password: '4GKU4S',
+          email: email2,
+          subject: 'Nove heslo',
+          message: noveHeslo
+        }, function (err, result) {
+          if (!result.body) {
+            if (err)console.log(err)
+            validate = result
+          } else {
+            // eslint-disable-next-line handle-callback-err
+            parseString(result.body, function (err, res) {
+              validate = res
+            })
+          }
+        })
+      })
+      await this.sleep(2000)
+      return validate
+    },
     async validateEmail () {
       var soap = require('soap')
       var parseString = require('xml2js').parseString
@@ -97,8 +136,16 @@ export default {
         console.log('not valid: ' + validate)
       }
     },
-    changePassword () {
+    async changePassword () {
       console.log(this.email)
+      var newPassword = ''
+      var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+      for (var i = 0; i < 10; i++) {
+        newPassword += chars.charAt(Math.floor(Math.random() * 10))
+      }
+      var validate = await this.sendEmailPassw(this.email, newPassword)
+      console.log('email s novym heslom bol odoslany: ' + validate.success)
+      await this.updateHeslo(newPassword)
     }
   }
 }

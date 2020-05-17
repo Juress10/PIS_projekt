@@ -52,7 +52,7 @@
             color="accent"
             :size="xl"
             @click="zobrazUlozenie=true"
-            v-on:click="updatePoistnaUdalost(); updatePoistnaSprava();"
+            v-on:click="updatePoistnaUdalost(); ulozitRozpracovana();"
             >
             <q-icon name="save" class="text-white" size="sm"/>
             <q-space></q-space>
@@ -65,7 +65,7 @@
             rounded
             color="cyan-8"
             :size="xl"
-            v-on:click="potvrditUdalost()"
+            v-on:click="potvrditUdalost(); vratNotifikovanie();"
             >
             <q-icon name="done_outline" class="text-white" size="sm"/>
             <q-space></q-space>
@@ -151,6 +151,7 @@ export default {
       url: [],
       poistna_udalost: {},
       poistna_sprava: {},
+      notifikovanie: '',
 
       zobrazUlozenie: false,
       chybajuceUdaje: false,
@@ -160,6 +161,16 @@ export default {
     }
   },
   methods: {
+    vratNotifikovanie () {
+      this.$axios.get(this.$store.state.store.URL + '/api/udalost/read/notifikovanie/' + this.poistna_udalost.id)
+        .then(res => {
+          console.log(res)
+          this.notifikovanie = res.data()
+        })
+        .catch(function (error) {
+          console.log(error)
+        })
+    },
     async sendEmail () {
       var soap = require('soap')
       var parseString = require('xml2js').parseString
@@ -187,14 +198,41 @@ export default {
       await this.sleep(2000)
       return validate
     },
+    async sendSMS () {
+      var soap = require('soap')
+      var parseString = require('xml2js').parseString
+      var validate = false
+
+      soap.createClientAsync('http://pis.predmety.fiit.stuba.sk/pis/ws/NotificationServices/SMS?WSDL').then((client) => {
+        client.notify({
+          team_id: '074',
+          password: '4GKU4S',
+          phone: '0909242556',
+          subject: 'oboznamenie o poistke',
+          message: this.poistna_sprava.text_spravy
+        }, function (err, result) {
+          if (!result.body) {
+            if (err)console.log(err)
+            validate = result
+          } else {
+            // eslint-disable-next-line handle-callback-err
+            parseString(result.body, function (err, res) {
+              validate = res
+            })
+          }
+        })
+      })
+      await this.sleep(2000)
+      return validate
+    },
     sleep (ms) {
       return new Promise(resolve => setTimeout(resolve, ms))
     },
     async potvrditUdalost () {
-      if (typeof this.poistna_sprava.id !== 'undefined' && typeof this.poistna_sprava.meno_priezvisko !== 'undefined' &&
-      typeof this.poistna_sprava.odhadnuta_suma !== 'undefined' && typeof this.poistna_sprava.text_spravy !== 'undefined' &&
-      typeof this.poistna_udalost.datum_skody !== 'undefined' && typeof this.poistna_udalost.opis_skody !== 'undefined' &&
-      this.poistna_udalost.miesto_skody !== 'undefined') {
+      if ((typeof this.poistna_sprava.id !== 'undefined' && this.poistna_sprava.id !== '') && (typeof this.poistna_sprava.meno_priezvisko !== 'undefined' && this.poistna_sprava.meno_priezvisko !== '') &&
+      (typeof this.poistna_sprava.odhadnuta_suma !== 'undefined' && this.poistna_sprava.odhadnuta_suma !== '') && (typeof this.poistna_sprava.text_spravy !== 'undefined' && this.poistna_sprava.text_spravy !== '') &&
+      (typeof this.poistna_udalost.datum_skody !== 'undefined' && this.poistna_udalost.datum_skody !== '') && (typeof this.poistna_udalost.opis_skody !== 'undefined' && this.poistna_udalost.opis_skody !== '') &&
+      (typeof this.poistna_udalost.miesto_skody !== 'undefined' && this.poistna_udalost.miesto_skody !== '')) {
         this.$axios.post(this.$store.state.store.URL + '/api/potvrdit',
           {
             id: this.poistna_udalost.id,
@@ -205,8 +243,20 @@ export default {
           .catch(function (error) {
             console.log(error)
           })
+        /*
+        if (this.notifikovanie === 'email') {
+          var validate = await this.sendEmail()
+          console.log('email bol poistencovy poslany: ' + validate.success)
+        } else if (this.notifikovanie === 'sms') {
+          var validate2 = await this.sendSMS()
+          console.log('SMS bola odoslana ' + validate2.success)
+        }
+        */
         var validate = await this.sendEmail()
         console.log('email bol poistencovy poslany: ' + validate.success)
+        this.notifikovanieEmailom = true
+      } else { // chybajuce udaje
+        this.chybajuceUdaje = true
       }
     },
     updatePoistnaUdalost () {
@@ -242,6 +292,17 @@ export default {
           })
           .catch(res => { console.log('error', res) })
       }
+    },
+    ulozitRozpracovana () {
+      console.log(this.poistna_udalost)
+      this.$axios.put(
+        this.$store.state.store.URL + '/api/udalost/update/rozpracovana/' + this.poistna_udalost.id,
+        this.poistna_udalost
+      )
+        .then(res => {
+          console.log(res)
+        })
+        .catch(res => { console.log('error', res) })
     }
   },
   created: function () {
