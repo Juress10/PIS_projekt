@@ -243,6 +243,14 @@ export default {
           .catch(function (error) {
             console.log(error)
           })
+
+        if (this.poistna_sprava.odhadnuta_suma > 10000) {
+          this.neadekvatnaSuma = true
+        } else {
+          var validate = await this.sendEmail()
+          console.log('email bol poistencovy poslany: ' + validate.success)
+          this.notifikovanieEmailom = true
+        }
         /*
         if (this.notifikovanie === 'email') {
           var validate = await this.sendEmail()
@@ -252,9 +260,6 @@ export default {
           console.log('SMS bola odoslana ' + validate2.success)
         }
         */
-        var validate = await this.sendEmail()
-        console.log('email bol poistencovy poslany: ' + validate.success)
-        this.notifikovanieEmailom = true
       } else { // chybajuce udaje
         this.chybajuceUdaje = true
       }
